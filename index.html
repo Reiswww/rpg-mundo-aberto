@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>RPG Mundo Aberto</title>
+<style>
+body {
+  background:#111;
+  color:#eee;
+  font-family:Arial;
+  padding:20px;
+}
+button {
+  padding:10px;
+  margin:5px;
+  font-size:16px;
+}
+#log {
+  border:1px solid #444;
+  padding:10px;
+  height:300px;
+  overflow-y:auto;
+}
+</style>
+</head>
+<body>
+
+<h1>RPG Mundo Aberto</h1>
+
+<div id="menu">
+<button onclick="girarClasse()">Girar Classe</button>
+</div>
+
+<div id="log"></div>
+
+<script>
+let giros = 3;
+let classe = "";
+
+function log(txt){
+  document.getElementById("log").innerHTML += txt + "<br>";
+}
+
+function girarClasse(){
+  if(giros <= 0){
+    log("Você não tem mais giros.");
+    return;
+  }
+
+  giros--;
+
+  let r = Math.random()*100;
+
+  if(r < 60){
+    classe = Math.random() < 0.5 ? "Goblin" : "Anão";
+  } else if(r < 90){
+    classe = "Orc";
+  } else {
+    classe = Math.random() < 0.5 ? "Anjo" : "Demônio";
+  }
+
+  log("Classe sorteada: " + classe);
+  log("Giros restantes: " + giros);
+}
+</script>
+
+</body>
+</html>
