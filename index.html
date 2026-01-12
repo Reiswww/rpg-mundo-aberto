@@ -1,94 +1,119 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>RPG Mundo Aberto</title>
+<meta charset="UTF-8">
+<title>RPG Mundo Aberto</title>
 
-  <style>
-    body {
-      background: #111;
-      color: #eee;
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
+<style>
+body {
+  background: #000;
+  color: #fff;
+  font-family: Arial;
+  margin: 0;
+}
 
-    button {
-      padding: 10px;
-      margin: 5px;
-      font-size: 16px;
-    }
+#intro, #game {
+  padding: 20px;
+}
 
-    #log {
-      border: 1px solid #444;
-      padding: 10px;
-      height: 300px;
-      overflow-y: auto;
-      margin-top: 10px;
-    }
-  </style>
+button {
+  padding: 10px;
+  margin: 5px;
+  font-size: 16px;
+}
+
+#mapa {
+  width: 300px;
+  height: 300px;
+  background: #222;
+  position: relative;
+  margin-top: 20px;
+}
+
+#player {
+  width: 20px;
+  height: 20px;
+  background: red;
+  position: absolute;
+  top: 140px;
+  left: 140px;
+}
+
+.controls button {
+  width: 60px;
+}
+</style>
 </head>
 
 <body>
 
-<h1>RPG Mundo Aberto</h1>
+<div id="intro">
+  <h1>RPG Mundo Aberto</h1>
+  <p id="textoIntro"></p>
 
-<button onclick="rollClass()">Girar Classe</button>
-<button onclick="explore()">Explorar</button>
+  <button onclick="girarClasse()">Girar Classe</button>
+  <button onclick="explorar()">Explorar</button>
+  <button onclick="startGame()">Start</button>
 
-<div id="log"></div>
+  <div id="log"></div>
+</div>
+
+<div id="game" style="display:none;">
+  <h2>Seu personagem</h2>
+
+  <div id="mapa">
+    <div id="player"></div>
+  </div>
+
+  <div class="controls">
+    <button onclick="mover(0,-10)">⬆️</button><br>
+    <button onclick="mover(-10,0)">⬅️</button>
+    <button onclick="mover(10,0)">➡️</button><br>
+    <button onclick="mover(0,10)">⬇️</button>
+  </div>
+</div>
 
 <script>
-  const log = document.getElementById("log");
+let texto = [
+  "Em um mundo antigo...",
+  "Criaturas lendárias existem.",
+  "Você acorda em sua casa."
+];
+let linha = 0;
 
-  let player = {
-    class: null,
-    hp: 100,
-    gold: 0
-  };
-
-  function write(text) {
-    log.innerHTML += text + "<br>";
-    log.scrollTop = log.scrollHeight;
+function escreverIntro() {
+  if (linha < texto.length) {
+    document.getElementById("textoIntro").innerHTML += texto[linha] + "<br>";
+    linha++;
+    setTimeout(escreverIntro, 1500);
   }
+}
+escreverIntro();
 
-  function rollClass() {
-    const roll = Math.random();
+function girarClasse() {
+  const classes = ["Goblin", "Anão", "Orc", "Anjo", "Demônio"];
+  const c = classes[Math.floor(Math.random()*classes.length)];
+  document.getElementById("log").innerHTML += "Classe sorteada: " + c + "<br>";
+}
 
-    if (roll < 0.6) {
-      const common = ["Goblin", "Anão"];
-      player.class = common[Math.floor(Math.random() * common.length)];
-      write("Classe comum obtida: " + player.class);
-    } else if (roll < 0.9) {
-      const uncommon = ["Orc", "Caçador"];
-      player.class = uncommon[Math.floor(Math.random() * uncommon.length)];
-      write("Classe incomum obtida: " + player.class);
-    } else {
-      const legendary = ["Anjo", "Demônio"];
-      player.class = legendary[Math.floor(Math.random() * legendary.length)];
-      write("CLASSE LENDÁRIA: " + player.class);
-    }
-  }
+function explorar() {
+  document.getElementById("log").innerHTML += "Você explorou a área.<br>";
+}
 
-  function explore() {
-    if (!player.class) {
-      write("Você precisa girar uma classe primeiro.");
-      return;
-    }
+function startGame() {
+  document.getElementById("intro").style.display = "none";
+  document.getElementById("game").style.display = "block";
+}
 
-    const events = [
-      "Você encontrou uma vila abandonada.",
-      "Um mercador te deu 10 moedas.",
-      "Um monstro apareceu, mas fugiu.",
-      "Você encontrou um baú antigo."
-    ];
+let x = 140;
+let y = 140;
 
-    const event = events[Math.floor(Math.random() * events.length)];
-    write(event);
-
-    if (event.includes("moedas")) {
-      player.gold += 10;
-    }
-  }
+function mover(dx, dy) {
+  x += dx;
+  y += dy;
+  document.getElementById("player").style.left = x + "px";
+  document.getElementById("player").style.top = y + "px";
+}
 </script>
 
 </body>
