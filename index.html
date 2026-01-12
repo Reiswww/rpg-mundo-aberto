@@ -1,118 +1,133 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <title>RPG Mundo Aberto</title>
 
 <style>
 body {
-  background: #000;
-  color: #fff;
-  font-family: Arial;
   margin: 0;
+  background: black;
+  color: white;
+  font-family: monospace;
+  text-align: center;
 }
 
-#intro, #game {
-  padding: 20px;
+#start, #intro {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#game {
+  display: none;
 }
 
 button {
-  padding: 10px;
-  margin: 5px;
-  font-size: 16px;
+  padding: 10px 20px;
+  font-size: 18px;
 }
 
-#mapa {
-  width: 300px;
-  height: 300px;
-  background: #222;
-  position: relative;
-  margin-top: 20px;
+canvas {
+  image-rendering: pixelated;
+  border: 3px solid white;
+  background: #2e7d32;
 }
 
-#player {
-  width: 20px;
-  height: 20px;
-  background: red;
-  position: absolute;
-  top: 140px;
-  left: 140px;
-}
-
-.controls button {
+#controls button {
   width: 60px;
+  height: 60px;
+  font-size: 22px;
 }
 </style>
 </head>
 
 <body>
 
-<div id="intro">
+<div id="start">
   <h1>RPG Mundo Aberto</h1>
-  <p id="textoIntro"></p>
-
-  <button onclick="girarClasse()">Girar Classe</button>
-  <button onclick="explorar()">Explorar</button>
-  <button onclick="startGame()">Start</button>
-
-  <div id="log"></div>
+  <button onclick="start()">START</button>
 </div>
 
-<div id="game" style="display:none;">
-  <h2>Seu personagem</h2>
+<div id="intro" style="display:none;">
+  <p id="text"></p>
+</div>
 
-  <div id="mapa">
-    <div id="player"></div>
-  </div>
-
-  <div class="controls">
-    <button onclick="mover(0,-10)">⬆️</button><br>
-    <button onclick="mover(-10,0)">⬅️</button>
-    <button onclick="mover(10,0)">➡️</button><br>
-    <button onclick="mover(0,10)">⬇️</button>
+<div id="game">
+  <canvas id="map" width="320" height="320"></canvas>
+  <div id="controls">
+    <button onclick="move(0,-1)">↑</button><br>
+    <button onclick="move(-1,0)">←</button>
+    <button onclick="move(1,0)">→</button><br>
+    <button onclick="move(0,1)">↓</button>
   </div>
 </div>
 
 <script>
-let texto = [
-  "Em um mundo antigo...",
-  "Criaturas lendárias existem.",
-  "Você acorda em sua casa."
-];
-let linha = 0;
+const story = "Você acorda em um mundo desconhecido...\nUma nova jornada começa.";
+let i = 0;
 
-function escreverIntro() {
-  if (linha < texto.length) {
-    document.getElementById("textoIntro").innerHTML += texto[linha] + "<br>";
-    linha++;
-    setTimeout(escreverIntro, 1500);
+function start() {
+  document.getElementById("start").style.display = "none";
+  document.getElementById("intro").style.display = "flex";
+  typeText();
+}
+
+function typeText() {
+  if (i < story.length) {
+    document.getElementById("text").textContent += story[i];
+    i++;
+    setTimeout(typeText, 50);
+  } else {
+    setTimeout(() => {
+      document.getElementById("intro").style.display = "none";
+      document.getElementById("game").style.display = "block";
+      draw();
+    }, 1200);
   }
 }
-escreverIntro();
 
-function girarClasse() {
-  const classes = ["Goblin", "Anão", "Orc", "Anjo", "Demônio"];
-  const c = classes[Math.floor(Math.random()*classes.length)];
-  document.getElementById("log").innerHTML += "Classe sorteada: " + c + "<br>";
+const canvas = document.getElementById("map");
+const ctx = canvas.getContext("2d");
+
+const tile = 32;
+
+const map = [
+  [1,1,1,1,1,1,1,1,1,1],
+  [1,0,0,0,0,0,0,0,0,1],
+  [1,0,0,1,1,1,0,0,0,1],
+  [1,0,0,0,0,1,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,1],
+  [1,1,1,1,1,1,1,1,1,1]
+];
+
+let player = { x: 1, y: 1 };
+
+function draw() {
+  ctx.clearRect(0,0,320,320);
+
+  for (let y=0; y<map.length; y++) {
+    for (let x=0; x<map[y].length; x++) {
+      ctx.fillStyle = map[y][x] === 1 ? "#1b5e20" : "#66bb6a";
+      ctx.fillRect(x*tile, y*tile, tile, tile);
+    }
+  }
+
+  ctx.fillStyle = "red";
+  ctx.fillRect(player.x*tile+8, player.y*tile+8, 16, 16);
 }
 
-function explorar() {
-  document.getElementById("log").innerHTML += "Você explorou a área.<br>";
-}
+function move(dx,dy) {
+  let nx = player.x + dx;
+  let ny = player.y + dy;
 
-function startGame() {
-  document.getElementById("intro").style.display = "none";
-  document.getElementById("game").style.display = "block";
-}
-
-let x = 140;
-let y = 140;
-
-function mover(dx, dy) {
-  x += dx;
-  y += dy;
-  document.getElementById("player").style.left = x + "px";
-  document.getElementById("player").style.top = y + "px";
+  if (map[ny][nx] === 0) {
+    player.x = nx;
+    player.y = ny;
+  }
+  draw();
 }
 </script>
 
