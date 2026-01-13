@@ -13,122 +13,126 @@ body {
   text-align: center;
 }
 
-#start, #intro {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+.tela {
+  display: none;
 }
 
-#game {
-  display: none;
+.ativa {
+  display: block;
 }
 
 button {
   padding: 10px 20px;
-  font-size: 18px;
+  font-size: 16px;
+  margin: 8px;
 }
 
 canvas {
   image-rendering: pixelated;
   border: 3px solid white;
-  background: #2e7d32;
-}
-
-#controls button {
-  width: 60px;
-  height: 60px;
-  font-size: 22px;
+  background: #6ab04c;
 }
 </style>
 </head>
 
 <body>
 
-<div id="start">
+<div id="telaInicial" class="tela ativa">
   <h1>RPG Mundo Aberto</h1>
-  <button onclick="start()">START</button>
+  <p>Pressione START</p>
+  <button onclick="irParaPersonagem()">START</button>
 </div>
 
-<div id="intro" style="display:none;">
-  <p id="text"></p>
+<div id="telaPersonagem" class="tela">
+  <h2>Escolha seu personagem</h2>
+  <button onclick="escolher('masc')">Masculino<br>Boné<br>Aventureiro</button>
+  <button onclick="escolher('fem')">Feminino<br>Guerreira</button>
 </div>
 
-<div id="game">
-  <canvas id="map" width="320" height="320"></canvas>
-  <div id="controls">
-    <button onclick="move(0,-1)">↑</button><br>
-    <button onclick="move(-1,0)">←</button>
-    <button onclick="move(1,0)">→</button><br>
-    <button onclick="move(0,1)">↓</button>
-  </div>
+<div id="telaJogo" class="tela">
+  <canvas id="game" width="320" height="320"></canvas>
 </div>
+
+<audio id="passo" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_4a6d1d0b36.mp3"></audio>
+<audio id="musica" src="https://cdn.pixabay.com/download/audio/2021/09/06/audio_7c9c0c6e1b.mp3" loop></audio>
 
 <script>
-const story = "Você acorda em um mundo desconhecido...\nUma nova jornada começa.";
-let i = 0;
+const telas = {
+  inicial: document.getElementById("telaInicial"),
+  personagem: document.getElementById("telaPersonagem"),
+  jogo: document.getElementById("telaJogo")
+};
 
-function start() {
-  document.getElementById("start").style.display = "none";
-  document.getElementById("intro").style.display = "flex";
-  typeText();
+function trocar(t) {
+  Object.values(telas).forEach(e => e.classList.remove("ativa"));
+  telas[t].classList.add("ativa");
 }
 
-function typeText() {
-  if (i < story.length) {
-    document.getElementById("text").textContent += story[i];
-    i++;
-    setTimeout(typeText, 50);
-  } else {
-    setTimeout(() => {
-      document.getElementById("intro").style.display = "none";
-      document.getElementById("game").style.display = "block";
-      draw();
-    }, 1200);
-  }
+function irParaPersonagem() {
+  trocar("personagem");
 }
 
-const canvas = document.getElementById("map");
+let personagem = "masc";
+
+function escolher(p) {
+  personagem = p;
+  trocar("jogo");
+  document.getElementById("musica").play();
+  desenhar();
+}
+
+const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 const tile = 32;
 
-const map = [
+const mapa = [
   [1,1,1,1,1,1,1,1,1,1],
   [1,0,0,0,0,0,0,0,0,1],
   [1,0,0,1,1,1,0,0,0,1],
-  [1,0,0,0,0,1,0,0,0,1],
+  [1,0,0,0,0,0,0,1,0,1],
   [1,0,0,0,0,0,0,0,0,1],
   [1,1,1,1,1,1,1,1,1,1]
 ];
 
 let player = { x: 1, y: 1 };
 
-function draw() {
+function desenhar() {
   ctx.clearRect(0,0,320,320);
 
-  for (let y=0; y<map.length; y++) {
-    for (let x=0; x<map[y].length; x++) {
-      ctx.fillStyle = map[y][x] === 1 ? "#1b5e20" : "#66bb6a";
-      ctx.fillRect(x*tile, y*tile, tile, tile);
+  for (let y=0;y<mapa.length;y++){
+    for (let x=0;x<mapa[y].length;x++){
+      ctx.fillStyle = mapa[y][x] === 1 ? "#145a32" : "#7dcea0";
+      ctx.fillRect(x*tile,y*tile,tile,tile);
     }
   }
 
-  ctx.fillStyle = "red";
+  if (personagem === "masc") {
+    ctx.fillStyle = "blue";
+  } else {
+    ctx.fillStyle = "pink";
+  }
+
   ctx.fillRect(player.x*tile+8, player.y*tile+8, 16, 16);
 }
 
-function move(dx,dy) {
-  let nx = player.x + dx;
-  let ny = player.y + dy;
+document.addEventListener("keydown", e => {
+  let nx = player.x;
+  let ny = player.y;
 
-  if (map[ny][nx] === 0) {
+  if (e.key === "ArrowUp") ny--;
+  if (e.key === "ArrowDown") ny++;
+  if (e.key === "ArrowLeft") nx--;
+  if (e.key === "ArrowRight") nx++;
+
+  if (mapa[ny][nx] === 0) {
     player.x = nx;
     player.y = ny;
+    document.getElementById("passo").play();
   }
-  draw();
-}
+
+  desenhar();
+});
 </script>
 
 </body>
